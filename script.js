@@ -19,11 +19,11 @@ const PARTS = {
       "D": 148
     },
     "images": {
-      "S": "assets/custom_S.png",
-      "A": "assets/custom_A.png",
-      "B": "assets/custom_B.png",
-      "C": "assets/custom_C.png",
-      "D": "assets/custom_D.png"
+      "S": "assets/custom_part_s.png",
+      "A": "assets/custom_part_a.png",
+      "B": "assets/custom_part_b.png",
+      "C": "assets/custom_part_c.png",
+      "D": "assets/custom_part_d.png"
     }
   },
   "suspension": {
@@ -91,11 +91,11 @@ const PARTS = {
       "D": 458
     },
     "images": {
-      "S": "assets/motor_S.png",
-      "A": "assets/motor_A.png",
-      "B": "assets/motor_B.png",
-      "C": "assets/motor_C.png",
-      "D": "assets/motor_D.png"
+      "S": "assets/engine_tune_s.png",
+      "A": "assets/engine_tune_a.png",
+      "B": "assets/engine_tune_b.png",
+      "C": "assets/engine_tune_c.png",
+      "D": "assets/engine_tune_d.png"
     }
   },
   "armor": {
@@ -127,11 +127,11 @@ const PARTS = {
       "D": 330
     },
     "images": {
-      "S": "assets/clutch_S.png",
-      "A": "assets/clutch_A.png",
-      "B": "assets/clutch_B.png",
-      "C": "assets/clutch_C.png",
-      "D": "assets/clutch_D.png"
+      "S": "assets/transmission_s.png",
+      "A": "assets/transmission_a.png",
+      "B": "assets/transmission_b.png",
+      "C": "assets/transmission_c.png",
+      "D": "assets/transmission_d.png"
     }
   },
   "paint": {
@@ -145,11 +145,11 @@ const PARTS = {
       "D": 122
     },
     "images": {
-      "S": "assets/spray.png",
-      "A": "assets/spray.png",
-      "B": "assets/spray.png",
-      "C": "assets/spray.png",
-      "D": "assets/spray.png"
+      "S": "assets/tuner_spray_can.png",
+      "A": "assets/tuner_spray_can.png",
+      "B": "assets/tuner_spray_can.png",
+      "C": "assets/tuner_spray_can.png",
+      "D": "assets/tuner_spray_can.png"
     }
   }
 };
@@ -380,54 +380,86 @@ function normalizeOcrText(text) {
 
 function parseBennysList(rawText) {
   const text = normalizeOcrText(rawText);
-  const result = { carClass: null, items: {} };
+  const compact = text.replace(/\n+/g, " ");
 
-  const classMatch = text.match(/klasse[:\s]+([SABCD])/i) || text.match(/\b([SABCD])[-\s]*klasse\b/i);
-  if (classMatch) result.carClass = classMatch[1].toUpperCase();
+  const result = {
+    carClass: null,
+    items: {}
+  };
 
-  const matchers = [
-    { key: "custom_part", patterns: ["custom"] },
-    { key: "suspension", patterns: ["affjedring", "affjedrings", "suspension"] },
-    { key: "brakes", patterns: ["bremse", "brakes"] },
-    { key: "turbo", patterns: ["turbo"] },
-    { key: "engine_tune", patterns: ["motor"] },
-    { key: "armor", patterns: ["armor"] },
-    { key: "transmission", patterns: ["kobling", "koblings", "transmission"] },
-    { key: "paint", patterns: ["spray", "spraydåse", "spraydaase", "lakering"] }
+  const classMatch =
+    compact.match(/klasse[:\s]+([SABCD])/i) ||
+    compact.match(/\b([SABCD])[-\s]*klasse\b/i);
+
+  if (classMatch) {
+    result.carClass = classMatch[1].toUpperCase();
+  }
+
+  let usefulText = compact;
+  const sectionMatch = compact.match(/dele der skal bruges[:\s]*(.*)/i);
+  if (sectionMatch) {
+    usefulText = sectionMatch[1];
+  }
+
+  const rules = [
+    { key: "custom_part", tests: [/custom/i] },
+    { key: "suspension", tests: [/affjed/i, /suspension/i] },
+    { key: "armor", tests: [/armor/i] },
+    { key: "turbo", tests: [/turbo/i] },
+    { key: "brakes", tests: [/bremse/i, /brake/i] },
+    { key: "engine_tune", tests: [/motor/i, /engine/i] },
+    { key: "transmission", tests: [/kobling/i, /transmission/i, /clutch/i] },
+    { key: "paint", tests: [/spray/i, /lakering/i] }
   ];
 
-  const segments = text.split(/(?=\b\d+\s*x\b)/i).map(s => s.trim()).filter(Boolean);
+  const segments = usefulText
+    .split(/(?=\b\d+\s*x\b)/i)
+    .map(s => s.trim())
+    .filter(Boolean);
 
   for (const segment of segments) {
-    const quantityMatch = segment.match(/\b(\d+)\s*x\b/i);
-    if (!quantityMatch) continue;
+    const qtyMatch = segment.match(/\b(\d+)\s*x\b/i);
+    if (!qtyMatch) continue;
 
-    const amount = Number(quantityMatch[1]);
-    const segmentLower = segment.toLowerCase();
+    const amount = Number(qtyMatch[1]);
 
-    for (const matcher of matchers) {
-      if (matcher.patterns.some(p => segmentLower.includes(p))) {
-        result.items[matcher.key] = (result.items[matcher.key] || 0) + amount;
+    for (const rule of rules) {
+      if (rule.tests.some(regex => regex.test(segment))) {
+        result.items[rule.key] = (result.items[rule.key] || 0) + amount;
 
         if (!result.carClass) {
-          const itemClassMatch = segment.match(/\b([SABCD])\s*[-–]\s*/i) || segment.match(/\bcustom\s+([SABCD])\b/i);
-          if (itemClassMatch) result.carClass = itemClassMatch[1].toUpperCase();
+          const itemClassMatch =
+            segment.match(/\b([SABCD])\s*[-–]\s*/i) ||
+            segment.match(/\bcustom\s+([SABCD])\b/i);
+
+          if (itemClassMatch) {
+            result.carClass = itemClassMatch[1].toUpperCase();
+          }
         }
+
         break;
       }
     }
   }
 
-  // Backup: search full text if OCR removed spacing badly
-  for (const matcher of matchers) {
-    if (result.items[matcher.key]) continue;
-    for (const pattern of matcher.patterns) {
-      const regex = new RegExp("(\\d+)\\s*x.{0,35}" + pattern, "i");
-      const match = text.match(regex);
-      if (match) {
-        result.items[matcher.key] = Number(match[1]);
-        break;
-      }
+  // Extra direct fallbacks for OCR text where segments get merged.
+  const fallbackRules = [
+    { key: "custom_part", regex: /(\d+)\s*x.{0,45}custom/i },
+    { key: "suspension", regex: /(\d+)\s*x.{0,45}affjed/i },
+    { key: "armor", regex: /(\d+)\s*x.{0,45}armor/i },
+    { key: "turbo", regex: /(\d+)\s*x.{0,45}turbo/i },
+    { key: "brakes", regex: /(\d+)\s*x.{0,45}bremse/i },
+    { key: "engine_tune", regex: /(\d+)\s*x.{0,45}motor/i },
+    { key: "transmission", regex: /(\d+)\s*x.{0,45}kobling/i },
+    { key: "paint", regex: /(\d+)\s*x.{0,45}(spray|lakering)/i }
+  ];
+
+  for (const rule of fallbackRules) {
+    if (result.items[rule.key]) continue;
+
+    const match = usefulText.match(rule.regex);
+    if (match) {
+      result.items[rule.key] = Number(match[1]);
     }
   }
 
@@ -513,7 +545,7 @@ async function scanBennysList() {
     cropCtx.imageSmoothingEnabled = true;
     cropCtx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropCanvas.width, cropCanvas.height);
 
-    status.textContent = "Aflæser Bennys indkøbsliste...";
+    status.textContent = "Aflæser indkøbsliste...";
 
     const result = await Tesseract.recognize(cropCanvas, "dan+eng", {
       logger: progress => {
@@ -532,7 +564,7 @@ async function scanBennysList() {
       return;
     }
 
-    const ok = confirm(`Fundet fra Bennys liste:\n\n${buildScanSummary(parsed)}\n\nVil du udfylde fakturaen med dette?`);
+    const ok = confirm(`Fundet fra indkøbsliste:\n\n${buildScanSummary(parsed)}\n\nVil du udfylde fakturaen med dette?`);
 
     if (!ok) {
       status.textContent = "Aflæsning annulleret.";
@@ -540,7 +572,7 @@ async function scanBennysList() {
     }
 
     applyParsedList(parsed);
-    status.textContent = "Bennys liste aflæst og udfyldt.";
+    status.textContent = "indkøbsliste aflæst og udfyldt.";
   } catch (error) {
     console.error(error);
     status.textContent = "Aflæsning blev annulleret eller fejlede.";

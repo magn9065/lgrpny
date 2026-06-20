@@ -1,11 +1,10 @@
-IGNITE FAKTURA V13 - OCR BENNYS LISTE
+LGRPNY - STABLE OCR FIX
 
-Ny funktion:
-- Knap: Aflæs Bennys liste
-- Vælg FiveM-vinduet via browserens skærmdeling
-- Siden tager et screenshot
-- OCR læser indkøbslisten
-- Klasse og antal dele udfyldes automatisk
+Denne version bruger den sidst fungerende imagefix som base og retter kun OCR-parseren sikkert.
 
-Priser fra Bennys/LSC ignoreres. Kun dele, klasse og antal bruges.
-Upload hele ZIP'en til Netlify.
+Rettet:
+- Delene loader igen
+- OCR finder flere dele fra indkøbslisten
+- Knappen hedder "Aflæs indkøbsliste"
+
+Commit + push til GitHub.

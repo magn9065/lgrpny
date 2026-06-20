@@ -410,3 +410,19 @@ input[type="number"] {
 }
 
 .status { color: var(--muted) !important; }
+
+
+/* Clean final image rendering */
+.part-image {
+  width: 82px !important;
+  height: 62px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  display: block !important;
+  margin: 0 auto !important;
+  transform: none !important;
+}
+
+.part-card:hover .part-image {
+  transform: none !important;
+}
