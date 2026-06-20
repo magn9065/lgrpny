@@ -1,11 +1,8 @@
-IGNITE FAKTURA V13 - OCR BENNYS LISTE
+LGRPNY - OCR PARSER FIX
 
-Ny funktion:
-- Knap: Aflæs Bennys liste
-- Vælg FiveM-vinduet via browserens skærmdeling
-- Siden tager et screenshot
-- OCR læser indkøbslisten
-- Klasse og antal dele udfyldes automatisk
+Rettet:
+- OCR parseren finder nu Affjedringsdele, Armordele, Turbodele og Customdele mere stabilt.
+- Alert siger nu "Fundet fra indkøbslisten".
+- Priser ignoreres stadig.
 
-Priser fra Bennys/LSC ignoreres. Kun dele, klasse og antal bruges.
-Upload hele ZIP'en til Netlify.
+Commit + push til GitHub.

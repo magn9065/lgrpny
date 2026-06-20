@@ -19,11 +19,11 @@ const PARTS = {
       "D": 148
     },
     "images": {
-      "S": "assets/custom_S.png",
-      "A": "assets/custom_A.png",
-      "B": "assets/custom_B.png",
-      "C": "assets/custom_C.png",
-      "D": "assets/custom_D.png"
+      "S": "assets/custom_part_s.png",
+      "A": "assets/custom_part_a.png",
+      "B": "assets/custom_part_b.png",
+      "C": "assets/custom_part_c.png",
+      "D": "assets/custom_part_d.png"
     }
   },
   "suspension": {
@@ -91,11 +91,11 @@ const PARTS = {
       "D": 458
     },
     "images": {
-      "S": "assets/motor_S.png",
-      "A": "assets/motor_A.png",
-      "B": "assets/motor_B.png",
-      "C": "assets/motor_C.png",
-      "D": "assets/motor_D.png"
+      "S": "assets/engine_tune_s.png",
+      "A": "assets/engine_tune_a.png",
+      "B": "assets/engine_tune_b.png",
+      "C": "assets/engine_tune_c.png",
+      "D": "assets/engine_tune_d.png"
     }
   },
   "armor": {
@@ -127,11 +127,11 @@ const PARTS = {
       "D": 330
     },
     "images": {
-      "S": "assets/clutch_S.png",
-      "A": "assets/clutch_A.png",
-      "B": "assets/clutch_B.png",
-      "C": "assets/clutch_C.png",
-      "D": "assets/clutch_D.png"
+      "S": "assets/transmission_s.png",
+      "A": "assets/transmission_a.png",
+      "B": "assets/transmission_b.png",
+      "C": "assets/transmission_c.png",
+      "D": "assets/transmission_d.png"
     }
   },
   "paint": {
@@ -145,11 +145,11 @@ const PARTS = {
       "D": 122
     },
     "images": {
-      "S": "assets/spray.png",
-      "A": "assets/spray.png",
-      "B": "assets/spray.png",
-      "C": "assets/spray.png",
-      "D": "assets/spray.png"
+      "S": "assets/tuner_spray_can.png",
+      "A": "assets/tuner_spray_can.png",
+      "B": "assets/tuner_spray_can.png",
+      "C": "assets/tuner_spray_can.png",
+      "D": "assets/tuner_spray_can.png"
     }
   }
 };
@@ -375,58 +375,147 @@ function resetForm(message = "Klar til ny faktura.") {
 
 
 function normalizeOcrText(text) {
-  return text.replace(/[•·]/g, " ").replace(/[|]/g, "1").replace(/\s+/g, " ").trim();
+  return text
+    .replace(/[•·▪]/g, " ")
+    .replace(/[–—]/g, "-")
+    .replace(/[|]/g, "1")
+    .replace(/\r/g, "\n")
+    .replace(/[^\S\n]+/g, " ")
+    .trim();
 }
 
 function parseBennysList(rawText) {
   const text = normalizeOcrText(rawText);
-  const result = { carClass: null, items: {} };
+  const compact = text.replace(/\n+/g, " ");
+  const lower = compact.toLowerCase();
 
-  const classMatch = text.match(/klasse[:\s]+([SABCD])/i) || text.match(/\b([SABCD])[-\s]*klasse\b/i);
-  if (classMatch) result.carClass = classMatch[1].toUpperCase();
+  const result = {
+    carClass: null,
+    items: {}
+  };
 
-  const matchers = [
-    { key: "custom_part", patterns: ["custom"] },
-    { key: "suspension", patterns: ["affjedring", "affjedrings", "suspension"] },
-    { key: "brakes", patterns: ["bremse", "brakes"] },
-    { key: "turbo", patterns: ["turbo"] },
-    { key: "engine_tune", patterns: ["motor"] },
-    { key: "armor", patterns: ["armor"] },
-    { key: "transmission", patterns: ["kobling", "koblings", "transmission"] },
-    { key: "paint", patterns: ["spray", "spraydåse", "spraydaase", "lakering"] }
+  const classMatch =
+    compact.match(/klasse[:\s]+([SABCD])/i) ||
+    compact.match(/\b([SABCD])[-\s]*klasse\b/i);
+
+  if (classMatch) {
+    result.carClass = classMatch[1].toUpperCase();
+  }
+
+  // Only read the section after "Dele der skal bruges" when possible.
+  let usefulText = compact;
+  const sectionMatch = compact.match(/dele der skal bruges[:\s]*(.*)/i);
+  if (sectionMatch) {
+    usefulText = sectionMatch[1];
+  }
+
+  const itemRules = [
+    {
+      key: "custom_part",
+      patterns: [
+        /(\d+)\s*x\s*custom\s*([SABCD])\s*[- ]?\s*dele?/i,
+        /(\d+)\s*x\s*([SABCD])\s*[- ]?\s*custom\s*dele?/i
+      ]
+    },
+    {
+      key: "suspension",
+      patterns: [
+        /(\d+)\s*x\s*([SABCD])\s*[- ]?\s*affjedrings?dele?/i,
+        /(\d+)\s*x.{0,20}affjedrings?dele?/i
+      ]
+    },
+    {
+      key: "armor",
+      patterns: [
+        /(\d+)\s*x\s*([SABCD])\s*[- ]?\s*armordele?/i,
+        /(\d+)\s*x.{0,20}armordele?/i
+      ]
+    },
+    {
+      key: "turbo",
+      patterns: [
+        /(\d+)\s*x\s*([SABCD])\s*[- ]?\s*turbodele?/i,
+        /(\d+)\s*x.{0,20}turbodele?/i
+      ]
+    },
+    {
+      key: "brakes",
+      patterns: [
+        /(\d+)\s*x\s*([SABCD])\s*[- ]?\s*bremsedele?/i,
+        /(\d+)\s*x.{0,20}bremsedele?/i
+      ]
+    },
+    {
+      key: "engine_tune",
+      patterns: [
+        /(\d+)\s*x\s*([SABCD])\s*[- ]?\s*motordele?/i,
+        /(\d+)\s*x.{0,20}motordele?/i
+      ]
+    },
+    {
+      key: "transmission",
+      patterns: [
+        /(\d+)\s*x\s*([SABCD])\s*[- ]?\s*koblings?dele?/i,
+        /(\d+)\s*x.{0,20}koblings?dele?/i
+      ]
+    },
+    {
+      key: "paint",
+      patterns: [
+        /(\d+)\s*x.{0,20}(spray|spraydåse|spraydaase|lakering)/i
+      ]
+    }
   ];
 
-  const segments = text.split(/(?=\b\d+\s*x\b)/i).map(s => s.trim()).filter(Boolean);
+  for (const rule of itemRules) {
+    for (const regex of rule.patterns) {
+      const match = usefulText.match(regex);
+      if (match) {
+        result.items[rule.key] = Number(match[1]);
 
-  for (const segment of segments) {
-    const quantityMatch = segment.match(/\b(\d+)\s*x\b/i);
-    if (!quantityMatch) continue;
-
-    const amount = Number(quantityMatch[1]);
-    const segmentLower = segment.toLowerCase();
-
-    for (const matcher of matchers) {
-      if (matcher.patterns.some(p => segmentLower.includes(p))) {
-        result.items[matcher.key] = (result.items[matcher.key] || 0) + amount;
-
-        if (!result.carClass) {
-          const itemClassMatch = segment.match(/\b([SABCD])\s*[-–]\s*/i) || segment.match(/\bcustom\s+([SABCD])\b/i);
-          if (itemClassMatch) result.carClass = itemClassMatch[1].toUpperCase();
+        if (!result.carClass && match[2] && /^[SABCD]$/i.test(match[2])) {
+          result.carClass = match[2].toUpperCase();
         }
+
         break;
       }
     }
   }
 
-  // Backup: search full text if OCR removed spacing badly
-  for (const matcher of matchers) {
-    if (result.items[matcher.key]) continue;
-    for (const pattern of matcher.patterns) {
-      const regex = new RegExp("(\\d+)\\s*x.{0,35}" + pattern, "i");
-      const match = text.match(regex);
-      if (match) {
-        result.items[matcher.key] = Number(match[1]);
-        break;
+  // Extra fallback: split by "1x/2x/3x" and classify each segment.
+  const segments = usefulText
+    .split(/(?=\b\d+\s*x\b)/i)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  for (const segment of segments) {
+    const qty = segment.match(/\b(\d+)\s*x\b/i);
+    if (!qty) continue;
+
+    const amount = Number(qty[1]);
+    const s = segment.toLowerCase();
+
+    let key = null;
+    if (s.includes("custom")) key = "custom_part";
+    else if (s.includes("affjed")) key = "suspension";
+    else if (s.includes("armor")) key = "armor";
+    else if (s.includes("turbo")) key = "turbo";
+    else if (s.includes("bremse")) key = "brakes";
+    else if (s.includes("motor")) key = "engine_tune";
+    else if (s.includes("kobling")) key = "transmission";
+    else if (s.includes("spray") || s.includes("lakering")) key = "paint";
+
+    if (key && !result.items[key]) {
+      result.items[key] = amount;
+    }
+
+    if (!result.carClass) {
+      const itemClassMatch =
+        segment.match(/\b([SABCD])\s*[-]\s*/i) ||
+        segment.match(/\bcustom\s+([SABCD])\b/i);
+
+      if (itemClassMatch) {
+        result.carClass = itemClassMatch[1].toUpperCase();
       }
     }
   }
@@ -513,7 +602,7 @@ async function scanBennysList() {
     cropCtx.imageSmoothingEnabled = true;
     cropCtx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropCanvas.width, cropCanvas.height);
 
-    status.textContent = "Aflæser Bennys indkøbsliste...";
+    status.textContent = "Aflæser indkøbsliste...";
 
     const result = await Tesseract.recognize(cropCanvas, "dan+eng", {
       logger: progress => {
@@ -532,7 +621,7 @@ async function scanBennysList() {
       return;
     }
 
-    const ok = confirm(`Fundet fra Bennys liste:\n\n${buildScanSummary(parsed)}\n\nVil du udfylde fakturaen med dette?`);
+    const ok = confirm(`Fundet fra indkøbsliste:\n\n${buildScanSummary(parsed)}\n\nVil du udfylde fakturaen med dette?`);
 
     if (!ok) {
       status.textContent = "Aflæsning annulleret.";
@@ -540,7 +629,7 @@ async function scanBennysList() {
     }
 
     applyParsedList(parsed);
-    status.textContent = "Bennys liste aflæst og udfyldt.";
+    status.textContent = "indkøbsliste aflæst og udfyldt.";
   } catch (error) {
     console.error(error);
     status.textContent = "Aflæsning blev annulleret eller fejlede.";
