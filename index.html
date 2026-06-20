@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ignite Faktura</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1><span>Ignite</span> Faktura</h1>
+      </div>
+
+      <label class="class-picker">
+        Bilklasse
+        <select id="carClass">
+          <option value="S">S-Klasse</option>
+          <option value="A">A-Klasse</option>
+          <option value="B">B-Klasse</option>
+          <option value="C">C-Klasse</option>
+          <option value="D">D-Klasse</option>
+        </select>
+      </label>
+    </header>
+
+    <section class="parts-wrap">
+      <div class="section-title">
+        <h2 id="partsTitle">S-Klasse dele</h2>
+        <span></span>
+      </div>
+
+      <div id="parts" class="parts"></div>
+    </section>
+
+    <footer class="bottom-bar">
+      <div>
+        <span class="muted">Total</span>
+        <strong id="totalPrice">0 kr.</strong>
+      </div>
+
+      <div class="actions">
+        <button class="secondary" onclick="scanBennysList()">📷 Aflæs Bennys liste</button>
+        <button onclick="openConfirmModal()">Godkend faktura</button>
+        <button class="ghost" onclick="resetForm()">Nulstil</button>
+      </div>
+    </footer>
+
+    <p id="status" class="status hidden-status">Klar til ny faktura.</p>
+  </main>
+
+  <div id="invoiceModal" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Godkend faktura</h2>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+
+      <p class="modal-text">
+        Når du trykker "Gem faktura" kopieres teksten automatisk, samt nulstilles alle valg.
+      </p>
+
+      <textarea id="invoiceText" readonly></textarea>
+
+      <div class="modal-total">
+        <span>Total</span>
+        <strong id="modalTotalPrice">0 kr.</strong>
+      </div>
+
+      <div class="actions">
+        <button onclick="approveInvoice()">Gem faktura</button>
+        <button class="secondary" onclick="copyInvoice()">Kopiér tekst</button>
+        <button class="ghost" onclick="closeModal()">Tilbage</button>
+      </div>
+    </div>
+  </div>
+
+  <video id="screenVideo" autoplay playsinline muted style="display:none"></video>
+  <canvas id="screenCanvas" style="display:none"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
