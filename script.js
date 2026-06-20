@@ -19,11 +19,11 @@ const PARTS = {
       "D": 148
     },
     "images": {
-      "S": "assets/custom_S.png",
-      "A": "assets/custom_A.png",
-      "B": "assets/custom_B.png",
-      "C": "assets/custom_C.png",
-      "D": "assets/custom_D.png"
+      "S": "assets/custom_part_S.png",
+      "A": "assets/custom_part_A.png",
+      "B": "assets/custom_part_B.png",
+      "C": "assets/custom_part_C.png",
+      "D": "assets/custom_part_D.png"
     }
   },
   "suspension": {
@@ -91,11 +91,11 @@ const PARTS = {
       "D": 458
     },
     "images": {
-      "S": "assets/motor_S.png",
-      "A": "assets/motor_A.png",
-      "B": "assets/motor_B.png",
-      "C": "assets/motor_C.png",
-      "D": "assets/motor_D.png"
+      "S": "assets/engine_tune_S.png",
+      "A": "assets/engine_tune_A.png",
+      "B": "assets/engine_tune_B.png",
+      "C": "assets/engine_tune_C.png",
+      "D": "assets/engine_tune_D.png"
     }
   },
   "armor": {
@@ -127,11 +127,11 @@ const PARTS = {
       "D": 330
     },
     "images": {
-      "S": "assets/clutch_S.png",
-      "A": "assets/clutch_A.png",
-      "B": "assets/clutch_B.png",
-      "C": "assets/clutch_C.png",
-      "D": "assets/clutch_D.png"
+      "S": "assets/transmission_S.png",
+      "A": "assets/transmission_A.png",
+      "B": "assets/transmission_B.png",
+      "C": "assets/transmission_C.png",
+      "D": "assets/transmission_D.png"
     }
   },
   "paint": {
@@ -145,11 +145,11 @@ const PARTS = {
       "D": 122
     },
     "images": {
-      "S": "assets/spray.png",
-      "A": "assets/spray.png",
-      "B": "assets/spray.png",
-      "C": "assets/spray.png",
-      "D": "assets/spray.png"
+      "S": "assets/tuner_spray_can.png",
+      "A": "assets/tuner_spray_can.png",
+      "B": "assets/tuner_spray_can.png",
+      "C": "assets/tuner_spray_can.png",
+      "D": "assets/tuner_spray_can.png"
     }
   }
 };
