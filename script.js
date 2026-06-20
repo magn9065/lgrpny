@@ -19,10 +19,10 @@ const PARTS = {
       "D": 148
     },
     "images": {
-      "S": "assets/custom_D.png",
+      "S": "assets/custom_S.png",
       "A": "assets/custom_A.png",
       "B": "assets/custom_B.png",
-      "C": "assets/custom_D.png",
+      "C": "assets/custom_C.png",
       "D": "assets/custom_D.png"
     }
   },
@@ -37,7 +37,7 @@ const PARTS = {
       "D": 257
     },
     "images": {
-      "S": "assets/suspension_d.png",
+      "S": "assets/suspension_s.png",
       "A": "assets/suspension_a.png",
       "B": "assets/suspension_b.png",
       "C": "assets/suspension_c.png",
@@ -55,9 +55,9 @@ const PARTS = {
       "D": 257
     },
     "images": {
-      "S": "assets/brakes_d.png",
-      "A": "assets/brakes_d.png",
-      "B": "assets/brakes_d.png",
+      "S": "assets/brakes_s.png",
+      "A": "assets/brakes_a.png",
+      "B": "assets/brakes_b.png",
       "C": "assets/brakes_c.png",
       "D": "assets/brakes_d.png"
     }
@@ -75,7 +75,7 @@ const PARTS = {
     "images": {
       "S": "assets/turbo_s.png",
       "A": "assets/turbo_a.png",
-      "B": "assets/turbo_d.png",
+      "B": "assets/turbo_b.png",
       "C": "assets/turbo_c.png",
       "D": "assets/turbo_d.png"
     }
@@ -110,7 +110,7 @@ const PARTS = {
     },
     "images": {
       "S": "assets/armor_s.png",
-      "A": "assets/armor_d.png",
+      "A": "assets/armor_a.png",
       "B": "assets/armor_b.png",
       "C": "assets/armor_c.png",
       "D": "assets/armor_d.png"
@@ -130,7 +130,7 @@ const PARTS = {
       "S": "assets/clutch_S.png",
       "A": "assets/clutch_A.png",
       "B": "assets/clutch_B.png",
-      "C": "assets/clutch_D.png",
+      "C": "assets/clutch_C.png",
       "D": "assets/clutch_D.png"
     }
   },
