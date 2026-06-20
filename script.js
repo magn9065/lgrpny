@@ -19,11 +19,19 @@ const PARTS = {
       "D": 148
     },
     "images": {
+<<<<<<< HEAD
       "S": "assets/custom_part_s.png",
       "A": "assets/custom_part_a.png",
       "B": "assets/custom_part_b.png",
       "C": "assets/custom_part_c.png",
       "D": "assets/custom_part_d.png"
+=======
+      "S": "assets/custom_part_S.png",
+      "A": "assets/custom_part_A.png",
+      "B": "assets/custom_part_B.png",
+      "C": "assets/custom_part_C.png",
+      "D": "assets/custom_part_D.png"
+>>>>>>> 30c8c30177623e1a3f08d2bfc364cc8a7fe7cf16
     }
   },
   "suspension": {
@@ -91,11 +99,19 @@ const PARTS = {
       "D": 458
     },
     "images": {
+<<<<<<< HEAD
       "S": "assets/engine_tune_s.png",
       "A": "assets/engine_tune_a.png",
       "B": "assets/engine_tune_b.png",
       "C": "assets/engine_tune_c.png",
       "D": "assets/engine_tune_d.png"
+=======
+      "S": "assets/engine_tune_S.png",
+      "A": "assets/engine_tune_A.png",
+      "B": "assets/engine_tune_B.png",
+      "C": "assets/engine_tune_C.png",
+      "D": "assets/engine_tune_D.png"
+>>>>>>> 30c8c30177623e1a3f08d2bfc364cc8a7fe7cf16
     }
   },
   "armor": {
@@ -127,11 +143,19 @@ const PARTS = {
       "D": 330
     },
     "images": {
+<<<<<<< HEAD
       "S": "assets/transmission_s.png",
       "A": "assets/transmission_a.png",
       "B": "assets/transmission_b.png",
       "C": "assets/transmission_c.png",
       "D": "assets/transmission_d.png"
+=======
+      "S": "assets/transmission_S.png",
+      "A": "assets/transmission_A.png",
+      "B": "assets/transmission_B.png",
+      "C": "assets/transmission_C.png",
+      "D": "assets/transmission_D.png"
+>>>>>>> 30c8c30177623e1a3f08d2bfc364cc8a7fe7cf16
     }
   },
   "paint": {
