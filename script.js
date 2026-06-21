@@ -549,6 +549,18 @@ function parseBennysList(rawText) {
     }
   }
 
+  // Bennys fallback:
+  // Hvis OCR finder Armor, Turbo og Custom, men misser Affjedringsdele,
+  // sættes Affjedringsdele automatisk til 1.
+  if (
+    !result.items.suspension &&
+    result.items.armor &&
+    result.items.turbo &&
+    result.items.custom_part
+  ) {
+    result.items.suspension = 1;
+  }
+
   return result;
 }
 
