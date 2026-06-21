@@ -19,11 +19,11 @@ const PARTS = {
       "D": 148
     },
     "images": {
-      "S": "assets/custom_part_s.png",
-      "A": "assets/custom_part_a.png",
-      "B": "assets/custom_part_b.png",
-      "C": "assets/custom_part_c.png",
-      "D": "assets/custom_part_d.png"
+      "S": "assets/custom_part_S.png",
+      "A": "assets/custom_part_A.png",
+      "B": "assets/custom_part_B.png",
+      "C": "assets/custom_part_C.png",
+      "D": "assets/custom_part_D.png"
     }
   },
   "suspension": {
@@ -91,11 +91,11 @@ const PARTS = {
       "D": 458
     },
     "images": {
-      "S": "assets/engine_tune_s.png",
-      "A": "assets/engine_tune_a.png",
-      "B": "assets/engine_tune_b.png",
-      "C": "assets/engine_tune_c.png",
-      "D": "assets/engine_tune_d.png"
+      "S": "assets/engine_tune_S.png",
+      "A": "assets/engine_tune_A.png",
+      "B": "assets/engine_tune_B.png",
+      "C": "assets/engine_tune_C.png",
+      "D": "assets/engine_tune_D.png"
     }
   },
   "armor": {
@@ -127,11 +127,11 @@ const PARTS = {
       "D": 330
     },
     "images": {
-      "S": "assets/transmission_s.png",
-      "A": "assets/transmission_a.png",
-      "B": "assets/transmission_b.png",
-      "C": "assets/transmission_c.png",
-      "D": "assets/transmission_d.png"
+      "S": "assets/transmission_S.png",
+      "A": "assets/transmission_A.png",
+      "B": "assets/transmission_B.png",
+      "C": "assets/transmission_C.png",
+      "D": "assets/transmission_D.png"
     }
   },
   "paint": {
@@ -375,7 +375,17 @@ function resetForm(message = "Klar til ny faktura.") {
 
 
 function normalizeOcrText(text) {
-  return text.replace(/[•·]/g, " ").replace(/[|]/g, "1").replace(/\s+/g, " ").trim();
+  return text
+    .replace(/[•·▪]/g, " ")
+    .replace(/[–—]/g, "-")
+    .replace(/[|]/g, "1")
+    .replace(/\r/g, "\n")
+    .replace(/[^\S\n]+/g, " ")
+    .replace(/Afi/gi, "Aff")
+    .replace(/Afj/gi, "Affj")
+    .replace(/Arrnor/gi, "Armor")
+    .replace(/Arnor/gi, "Armor")
+    .trim();
 }
 
 function parseBennysList(rawText) {
@@ -401,40 +411,96 @@ function parseBennysList(rawText) {
     usefulText = sectionMatch[1];
   }
 
-  const rules = [
-    { key: "custom_part", tests: [/custom/i] },
-    { key: "suspension", tests: [/affjed/i, /suspension/i] },
-    { key: "armor", tests: [/armor/i] },
-    { key: "turbo", tests: [/turbo/i] },
-    { key: "brakes", tests: [/bremse/i, /brake/i] },
-    { key: "engine_tune", tests: [/motor/i, /engine/i] },
-    { key: "transmission", tests: [/kobling/i, /transmission/i, /clutch/i] },
-    { key: "paint", tests: [/spray/i, /lakering/i] }
+  const lower = usefulText.toLowerCase();
+
+  const itemDefinitions = [
+    {
+      key: "custom_part",
+      defaultAmount: 1,
+      words: ["custom", "custorn"],
+      quantityRegexes: [
+        /(\d+)\s*x\s*custom\s*([SABCD])\s*[- ]?\s*dele?/i,
+        /(\d+)\s*x\s*([SABCD])\s*[- ]?\s*custom\s*dele?/i,
+        /(\d+)\s*x.{0,80}custom/i
+      ]
+    },
+    {
+      key: "suspension",
+      defaultAmount: 1,
+      words: ["affjed", "affjedring", "affjedrings", "affied", "afljed", "afjed", "affj", "suspension"],
+      quantityRegexes: [
+        /(\d+)\s*x\s*([SABCD])?\s*[- ]?\s*affj?edrings?dele?/i,
+        /(\d+)\s*x.{0,80}affj?ed/i,
+        /(\d+)\s*x.{0,80}suspension/i
+      ]
+    },
+    {
+      key: "armor",
+      defaultAmount: 1,
+      words: ["armor", "armordele", "arnor", "arrnor"],
+      quantityRegexes: [
+        /(\d+)\s*x\s*([SABCD])?\s*[- ]?\s*armordele?/i,
+        /(\d+)\s*x.{0,80}armor/i,
+        /(\d+)\s*x.{0,80}arnor/i
+      ]
+    },
+    {
+      key: "turbo",
+      defaultAmount: 1,
+      words: ["turbo", "turbodele", "turh", "turbo"],
+      quantityRegexes: [
+        /(\d+)\s*x\s*([SABCD])?\s*[- ]?\s*turbodele?/i,
+        /(\d+)\s*x.{0,80}turbo/i
+      ]
+    },
+    {
+      key: "brakes",
+      defaultAmount: 1,
+      words: ["bremse", "bremsedele", "brernse", "brem"],
+      quantityRegexes: [
+        /(\d+)\s*x\s*([SABCD])?\s*[- ]?\s*bremsedele?/i,
+        /(\d+)\s*x.{0,80}brem/i
+      ]
+    },
+    {
+      key: "engine_tune",
+      defaultAmount: 1,
+      words: ["motor", "motordele", "rnotor"],
+      quantityRegexes: [
+        /(\d+)\s*x\s*([SABCD])?\s*[- ]?\s*motordele?/i,
+        /(\d+)\s*x.{0,80}motor/i
+      ]
+    },
+    {
+      key: "transmission",
+      defaultAmount: 1,
+      words: ["kobling", "koblings", "koblingsdele", "kobiing", "kobllng", "transmission", "clutch"],
+      quantityRegexes: [
+        /(\d+)\s*x\s*([SABCD])?\s*[- ]?\s*koblings?dele?/i,
+        /(\d+)\s*x.{0,80}kobling/i,
+        /(\d+)\s*x.{0,80}transmission/i,
+        /(\d+)\s*x.{0,80}clutch/i
+      ]
+    },
+    {
+      key: "paint",
+      defaultAmount: 1,
+      words: ["spray", "spraydåse", "spraydaase", "lakering"],
+      quantityRegexes: [
+        /(\d+)\s*x.{0,80}(spray|spraydåse|spraydaase|lakering)/i
+      ]
+    }
   ];
 
-  const segments = usefulText
-    .split(/(?=\b\d+\s*x\b)/i)
-    .map(s => s.trim())
-    .filter(Boolean);
+  // First: exact quantity parsing.
+  for (const def of itemDefinitions) {
+    for (const regex of def.quantityRegexes) {
+      const match = usefulText.match(regex);
+      if (match) {
+        result.items[def.key] = Number(match[1]);
 
-  for (const segment of segments) {
-    const qtyMatch = segment.match(/\b(\d+)\s*x\b/i);
-    if (!qtyMatch) continue;
-
-    const amount = Number(qtyMatch[1]);
-
-    for (const rule of rules) {
-      if (rule.tests.some(regex => regex.test(segment))) {
-        result.items[rule.key] = (result.items[rule.key] || 0) + amount;
-
-        if (!result.carClass) {
-          const itemClassMatch =
-            segment.match(/\b([SABCD])\s*[-–]\s*/i) ||
-            segment.match(/\bcustom\s+([SABCD])\b/i);
-
-          if (itemClassMatch) {
-            result.carClass = itemClassMatch[1].toUpperCase();
-          }
+        if (!result.carClass && match[2] && /^[SABCD]$/i.test(match[2])) {
+          result.carClass = match[2].toUpperCase();
         }
 
         break;
@@ -442,24 +508,44 @@ function parseBennysList(rawText) {
     }
   }
 
-  // Extra direct fallbacks for OCR text where segments get merged.
-  const fallbackRules = [
-    { key: "custom_part", regex: /(\d+)\s*x.{0,45}custom/i },
-    { key: "suspension", regex: /(\d+)\s*x.{0,45}affjed/i },
-    { key: "armor", regex: /(\d+)\s*x.{0,45}armor/i },
-    { key: "turbo", regex: /(\d+)\s*x.{0,45}turbo/i },
-    { key: "brakes", regex: /(\d+)\s*x.{0,45}bremse/i },
-    { key: "engine_tune", regex: /(\d+)\s*x.{0,45}motor/i },
-    { key: "transmission", regex: /(\d+)\s*x.{0,45}kobling/i },
-    { key: "paint", regex: /(\d+)\s*x.{0,45}(spray|lakering)/i }
-  ];
+  // Second: chunk parsing when OCR keeps line-ish structure.
+  const chunks = usefulText
+    .split(/(?=\b\d+\s*x\b)/i)
+    .map(s => s.trim())
+    .filter(Boolean);
 
-  for (const rule of fallbackRules) {
-    if (result.items[rule.key]) continue;
+  for (const chunk of chunks) {
+    const qtyMatch = chunk.match(/\b(\d+)\s*x\b/i);
+    const amount = qtyMatch ? Number(qtyMatch[1]) : 1;
+    const chunkLower = chunk.toLowerCase();
 
-    const match = usefulText.match(rule.regex);
-    if (match) {
-      result.items[rule.key] = Number(match[1]);
+    for (const def of itemDefinitions) {
+      if (def.words.some(word => chunkLower.includes(word))) {
+        if (!result.items[def.key]) {
+          result.items[def.key] = amount;
+        }
+        break;
+      }
+    }
+
+    if (!result.carClass) {
+      const itemClassMatch =
+        chunk.match(/\b([SABCD])\s*[-]\s*/i) ||
+        chunk.match(/\bcustom\s+([SABCD])\b/i);
+
+      if (itemClassMatch) {
+        result.carClass = itemClassMatch[1].toUpperCase();
+      }
+    }
+  }
+
+  // Third: fuzzy fallback.
+  // If OCR sees the part name but misses "1x", we still add it as 1.
+  for (const def of itemDefinitions) {
+    if (result.items[def.key]) continue;
+
+    if (def.words.some(word => lower.includes(word))) {
+      result.items[def.key] = def.defaultAmount;
     }
   }
 
@@ -532,10 +618,10 @@ async function scanBennysList() {
     stream.getTracks().forEach(track => track.stop());
 
     // Crop center area where the Bennys list is normally shown.
-    const cropX = Math.round(canvas.width * 0.34);
-    const cropY = Math.round(canvas.height * 0.32);
-    const cropW = Math.round(canvas.width * 0.32);
-    const cropH = Math.round(canvas.height * 0.32);
+    const cropX = Math.round(canvas.width * 0.28);
+    const cropY = Math.round(canvas.height * 0.24);
+    const cropW = Math.round(canvas.width * 0.44);
+    const cropH = Math.round(canvas.height * 0.44);
 
     const cropCanvas = document.createElement("canvas");
     cropCanvas.width = cropW * 2;
@@ -544,6 +630,18 @@ async function scanBennysList() {
     const cropCtx = cropCanvas.getContext("2d");
     cropCtx.imageSmoothingEnabled = true;
     cropCtx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropCanvas.width, cropCanvas.height);
+
+    // OCR preprocessing: brighten text and increase contrast.
+    const imageData = cropCtx.getImageData(0, 0, cropCanvas.width, cropCanvas.height);
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const gray = (data[i] + data[i + 1] + data[i + 2]) / 3;
+      const boosted = gray > 105 ? 255 : 0;
+      data[i] = boosted;
+      data[i + 1] = boosted;
+      data[i + 2] = boosted;
+    }
+    cropCtx.putImageData(imageData, 0, 0);
 
     status.textContent = "Aflæser indkøbsliste...";
 
@@ -555,7 +653,9 @@ async function scanBennysList() {
       }
     });
 
+    console.log("OCR text:", result.data.text);
     const parsed = parseBennysList(result.data.text);
+    console.log("Parsed OCR:", parsed);
     const foundCount = Object.keys(parsed.items).length;
 
     if (!parsed.carClass && foundCount === 0) {
