@@ -19,11 +19,11 @@ const PARTS = {
       "D": 148
     },
     "images": {
-      "S": "assets/custom_part_S.png",
-      "A": "assets/custom_part_A.png",
-      "B": "assets/custom_part_B.png",
-      "C": "assets/custom_part_C.png",
-      "D": "assets/custom_part_D.png"
+      "S": "assets/custom_part_s.png",
+      "A": "assets/custom_part_a.png",
+      "B": "assets/custom_part_b.png",
+      "C": "assets/custom_part_c.png",
+      "D": "assets/custom_part_d.png"
     }
   },
   "suspension": {
@@ -91,11 +91,11 @@ const PARTS = {
       "D": 458
     },
     "images": {
-      "S": "assets/engine_tune_S.png",
-      "A": "assets/engine_tune_A.png",
-      "B": "assets/engine_tune_B.png",
-      "C": "assets/engine_tune_C.png",
-      "D": "assets/engine_tune_D.png"
+      "S": "assets/engine_tune_s.png",
+      "A": "assets/engine_tune_a.png",
+      "B": "assets/engine_tune_b.png",
+      "C": "assets/engine_tune_c.png",
+      "D": "assets/engine_tune_d.png"
     }
   },
   "armor": {
@@ -127,22 +127,40 @@ const PARTS = {
       "D": 330
     },
     "images": {
-      "S": "assets/transmission_S.png",
-      "A": "assets/transmission_A.png",
-      "B": "assets/transmission_B.png",
-      "C": "assets/transmission_C.png",
-      "D": "assets/transmission_D.png"
+      "S": "assets/transmission_s.png",
+      "A": "assets/transmission_a.png",
+      "B": "assets/transmission_b.png",
+      "C": "assets/transmission_c.png",
+      "D": "assets/transmission_d.png"
+    }
+  },
+  "stance_parts": {
+    "baseName": "Stance",
+    "displaySuffix": "dele",
+    "prices": {
+      "S": 8000,
+      "A": 3600,
+      "B": 1520,
+      "C": 480,
+      "D": 240
+    },
+    "images": {
+      "S": "assets/stance_parts_s.png",
+      "A": "assets/stance_parts_a.png",
+      "B": "assets/stance_parts_b.png",
+      "C": "assets/stance_parts_c.png",
+      "D": "assets/stance_parts_d.png"
     }
   },
   "paint": {
     "baseName": "Tuner Spraydåse",
     "displaySuffix": "",
     "prices": {
-      "S": 122,
-      "A": 122,
-      "B": 122,
-      "C": 122,
-      "D": 122
+      "S": 3200,
+      "A": 1600,
+      "B": 800,
+      "C": 280,
+      "D": 120
     },
     "images": {
       "S": "assets/tuner_spray_can.png",
@@ -222,7 +240,8 @@ function getItems() {
         car_class: carClass,
         amount,
         unit_price: unit,
-        total_price: amount * unit
+        total_price: amount * unit,
+        image: PARTS[key].images[carClass]
       };
     })
     .filter(item => item.amount > 0);
@@ -248,7 +267,7 @@ function buildInvoiceText(items) {
   return items.map(item => `${item.amount}x ${item.name}`).join(", ");
 }
 
-function openConfirmModal() {
+async function openConfirmModal() {
   const items = getItems();
   const status = document.getElementById("status");
 
@@ -262,22 +281,258 @@ function openConfirmModal() {
 
   document.getElementById("invoiceText").value = invoiceText;
   document.getElementById("modalTotalPrice").textContent = money(total);
+
+  status.textContent = "Sender Discord-log...";
+  await sendDiscordInvoiceLog(items, total, document.getElementById("carClass").value);
+
+  resetSaveButton();
   document.getElementById("invoiceModal").classList.remove("hidden");
-  status.textContent = "Faktura klar til godkendelse.";
+  status.textContent = "Discord-log sendt. Faktura klar til gem/kopi.";
+}
+
+let saveConfirmPending = false;
+
+function resetSaveButton() {
+  saveConfirmPending = false;
+  const saveButton = document.getElementById("saveInvoiceBtn");
+  if (saveButton) {
+    saveButton.textContent = "Gem faktura";
+    saveButton.classList.remove("confirming");
+  }
 }
 
 function closeModal() {
   document.getElementById("invoiceModal").classList.add("hidden");
+  resetSaveButton();
 }
 
 async function approveInvoice() {
-  const confirmed = confirm("Er du sikker på, at fakturaen skal gemmes? Teksten kopieres automatisk, og alle valg nulstilles bagefter.");
+  const saveButton = document.getElementById("saveInvoiceBtn");
+  const status = document.getElementById("status");
 
-  if (!confirmed) {
+  if (!saveConfirmPending) {
+    saveConfirmPending = true;
+    if (saveButton) {
+      saveButton.textContent = "Sikker?";
+      saveButton.classList.add("confirming");
+    }
+    status.textContent = "Tryk på Sikker? for at gemme fakturaen.";
     return;
   }
 
+  if (saveButton) {
+    saveButton.disabled = true;
+    saveButton.textContent = "Gemmer...";
+  }
+
   await saveInvoiceAndReset();
+
+  if (saveButton) {
+    saveButton.disabled = false;
+  }
+}
+
+function formatInvoiceDateTime() {
+  const now = new Date();
+  const date = now.toLocaleDateString("da-DK", {
+    timeZone: "Europe/Copenhagen",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+  const time = now.toLocaleTimeString("da-DK", {
+    timeZone: "Europe/Copenhagen",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+  return `${date} - ${time}`;
+}
+
+function loadCanvasImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+function cleanDiscordItemName(item, carClass) {
+  return String(item.display_name || item.name || "Del")
+    .replace(`${carClass}-`, "")
+    .replace("Motordele", "Motorblokke");
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + width, y, x + width, y + height, r);
+  ctx.arcTo(x + width, y + height, x, y + height, r);
+  ctx.arcTo(x, y + height, x, y, r);
+  ctx.arcTo(x, y, x + width, y, r);
+  ctx.closePath();
+}
+
+function drawRoundedImage(ctx, img, x, y, size, radius) {
+  ctx.save();
+  roundRect(ctx, x, y, size, size, radius);
+  ctx.clip();
+
+  if (img) {
+    const scale = Math.max(size / img.width, size / img.height);
+    const w = img.width * scale;
+    const h = img.height * scale;
+    ctx.drawImage(img, x + (size - w) / 2, y + (size - h) / 2, w, h);
+  } else {
+    ctx.fillStyle = "#20242d";
+    ctx.fillRect(x, y, size, size);
+    ctx.fillStyle = "#8b5cf6";
+    ctx.font = "700 34px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("?", x + size / 2, y + size / 2);
+  }
+
+  ctx.restore();
+}
+
+async function createDiscordInvoiceImage(items, total, carClass, dateTime) {
+  const compactItems = items.filter(item => Number(item.amount || 0) > 0);
+  const rowHeight = 104;
+  const width = 900;
+  const height = Math.max(520, 340 + compactItems.length * rowHeight);
+  const scale = 2;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, "#151922");
+  gradient.addColorStop(1, "#0b0d12");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.fillStyle = "#8b5cf6";
+  ctx.fillRect(0, 0, 8, height);
+
+  ctx.fillStyle = "rgba(255,255,255,0.035)";
+  roundRect(ctx, 18, 18, width - 36, height - 36, 18);
+  ctx.fill();
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "700 42px Arial";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillText("🧾 Ny Faktura", 62, 72);
+
+  ctx.strokeStyle = "rgba(255,255,255,0.14)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(54, 122);
+  ctx.lineTo(width - 54, 122);
+  ctx.stroke();
+
+  ctx.font = "400 30px Arial";
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText("🔧 Klasse:", 62, 172);
+
+  ctx.fillStyle = "rgba(139,92,246,0.28)";
+  roundRect(ctx, 232, 143, 56, 56, 10);
+  ctx.fill();
+  ctx.fillStyle = "#a78bfa";
+  ctx.font = "700 34px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(carClass, 260, 172);
+  ctx.textAlign = "left";
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "400 30px Arial";
+  ctx.fillText("💰 Total:", 62, 224);
+  ctx.fillStyle = "#7ee787";
+  ctx.font = "700 31px Arial";
+  ctx.fillText(money(total).replace(" kr.", " kr"), 232, 224);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "400 30px Arial";
+  ctx.fillText("🕒 Dato & Tid:", 62, 276);
+  ctx.font = "400 29px Arial";
+  ctx.fillText(dateTime, 290, 276);
+
+  ctx.strokeStyle = "rgba(255,255,255,0.14)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(54, 324);
+  ctx.lineTo(width - 54, 324);
+  ctx.stroke();
+
+  const loaded = await Promise.all(compactItems.map(item => loadCanvasImage(item.image)));
+
+  compactItems.forEach((item, index) => {
+    const y = 356 + index * rowHeight;
+    const img = loaded[index];
+
+    drawRoundedImage(ctx, img, 62, y - 28, 78, 14);
+
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "700 28px Arial";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(cleanDiscordItemName(item, carClass), 172, y + 11);
+
+    const badgeW = 86;
+    const badgeH = 54;
+    const badgeX = width - 62 - badgeW;
+    const badgeY = y - 16;
+    ctx.fillStyle = "rgba(255,255,255,0.06)";
+    roundRect(ctx, badgeX, badgeY, badgeW, badgeH, 14);
+    ctx.fill();
+    ctx.fillStyle = "#a78bfa";
+    ctx.font = "700 30px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(`${item.amount}x`, badgeX + badgeW / 2, badgeY + badgeH / 2 + 1);
+  });
+
+  return canvas.toDataURL("image/png", 0.92);
+}
+
+
+async function sendDiscordInvoiceLog(items, total, carClass) {
+  const status = document.getElementById("status");
+  const invoiceText = buildInvoiceText(items);
+  const dateTime = formatInvoiceDateTime();
+
+  try {
+    const discordResponse = await fetch("/.netlify/functions/send-discord", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        carClass,
+        total,
+        invoiceText,
+        items,
+        dateTime
+      })
+    });
+
+    if (!discordResponse.ok) {
+      const discordErrorText = await discordResponse.text();
+      console.error("Discord webhook fejl:", discordErrorText);
+      if (status) status.textContent = "Faktura klar, men Discord-log fejlede. Tjek Netlify Function Logs.";
+      return false;
+    }
+
+    return true;
+  } catch (discordError) {
+    console.error("Discord webhook fejl:", discordError);
+    if (status) status.textContent = "Faktura klar, men Discord-log fejlede. Tjek Netlify Function Logs.";
+    return false;
+  }
 }
 
 async function saveInvoiceAndReset() {
@@ -338,6 +593,7 @@ async function saveInvoiceAndReset() {
     }
   }
 
+
   try {
     await navigator.clipboard.writeText(invoiceText);
     status.textContent = "Faktura gemt, tekst kopieret og valg nulstillet.";
@@ -372,325 +628,6 @@ function resetForm(message = "Klar til ny faktura.") {
   closeModal();
   updateLinePrices();
 }
-
-
-function normalizeOcrText(text) {
-  return text
-    .replace(/[•·▪]/g, " ")
-    .replace(/[–—]/g, "-")
-    .replace(/[|]/g, "1")
-    .replace(/\r/g, "\n")
-    .replace(/[^\S\n]+/g, " ")
-    .replace(/Afi/gi, "Aff")
-    .replace(/Afj/gi, "Affj")
-    .replace(/Arrnor/gi, "Armor")
-    .replace(/Arnor/gi, "Armor")
-    .trim();
-}
-
-function parseBennysList(rawText) {
-  const text = normalizeOcrText(rawText);
-  const compact = text.replace(/\n+/g, " ");
-
-  const result = {
-    carClass: null,
-    items: {}
-  };
-
-  const classMatch =
-    compact.match(/klasse[:\s]+([SABCD])/i) ||
-    compact.match(/\b([SABCD])[-\s]*klasse\b/i);
-
-  if (classMatch) {
-    result.carClass = classMatch[1].toUpperCase();
-  }
-
-  let usefulText = compact;
-  const sectionMatch = compact.match(/dele der skal bruges[:\s]*(.*)/i);
-  if (sectionMatch) {
-    usefulText = sectionMatch[1];
-  }
-
-  const lower = usefulText.toLowerCase();
-
-  const itemDefinitions = [
-    {
-      key: "custom_part",
-      defaultAmount: 1,
-      words: ["custom", "custorn"],
-      quantityRegexes: [
-        /(\d+)\s*x\s*custom\s*([SABCD])\s*[- ]?\s*dele?/i,
-        /(\d+)\s*x\s*([SABCD])\s*[- ]?\s*custom\s*dele?/i,
-        /(\d+)\s*x.{0,80}custom/i
-      ]
-    },
-    {
-      key: "suspension",
-      defaultAmount: 1,
-      words: ["affjed", "affjedring", "affjedrings", "affied", "afljed", "afjed", "affj", "suspension"],
-      quantityRegexes: [
-        /(\d+)\s*x\s*([SABCD])?\s*[- ]?\s*affj?edrings?dele?/i,
-        /(\d+)\s*x.{0,80}affj?ed/i,
-        /(\d+)\s*x.{0,80}suspension/i
-      ]
-    },
-    {
-      key: "armor",
-      defaultAmount: 1,
-      words: ["armor", "armordele", "arnor", "arrnor"],
-      quantityRegexes: [
-        /(\d+)\s*x\s*([SABCD])?\s*[- ]?\s*armordele?/i,
-        /(\d+)\s*x.{0,80}armor/i,
-        /(\d+)\s*x.{0,80}arnor/i
-      ]
-    },
-    {
-      key: "turbo",
-      defaultAmount: 1,
-      words: ["turbo", "turbodele", "turh", "turbo"],
-      quantityRegexes: [
-        /(\d+)\s*x\s*([SABCD])?\s*[- ]?\s*turbodele?/i,
-        /(\d+)\s*x.{0,80}turbo/i
-      ]
-    },
-    {
-      key: "brakes",
-      defaultAmount: 1,
-      words: ["bremse", "bremsedele", "brernse", "brem"],
-      quantityRegexes: [
-        /(\d+)\s*x\s*([SABCD])?\s*[- ]?\s*bremsedele?/i,
-        /(\d+)\s*x.{0,80}brem/i
-      ]
-    },
-    {
-      key: "engine_tune",
-      defaultAmount: 1,
-      words: ["motor", "motordele", "rnotor"],
-      quantityRegexes: [
-        /(\d+)\s*x\s*([SABCD])?\s*[- ]?\s*motordele?/i,
-        /(\d+)\s*x.{0,80}motor/i
-      ]
-    },
-    {
-      key: "transmission",
-      defaultAmount: 1,
-      words: ["kobling", "koblings", "koblingsdele", "kobiing", "kobllng", "transmission", "clutch"],
-      quantityRegexes: [
-        /(\d+)\s*x\s*([SABCD])?\s*[- ]?\s*koblings?dele?/i,
-        /(\d+)\s*x.{0,80}kobling/i,
-        /(\d+)\s*x.{0,80}transmission/i,
-        /(\d+)\s*x.{0,80}clutch/i
-      ]
-    },
-    {
-      key: "paint",
-      defaultAmount: 1,
-      words: ["spray", "spraydåse", "spraydaase", "lakering"],
-      quantityRegexes: [
-        /(\d+)\s*x.{0,80}(spray|spraydåse|spraydaase|lakering)/i
-      ]
-    }
-  ];
-
-  // First: exact quantity parsing.
-  for (const def of itemDefinitions) {
-    for (const regex of def.quantityRegexes) {
-      const match = usefulText.match(regex);
-      if (match) {
-        result.items[def.key] = Number(match[1]);
-
-        if (!result.carClass && match[2] && /^[SABCD]$/i.test(match[2])) {
-          result.carClass = match[2].toUpperCase();
-        }
-
-        break;
-      }
-    }
-  }
-
-  // Second: chunk parsing when OCR keeps line-ish structure.
-  const chunks = usefulText
-    .split(/(?=\b\d+\s*x\b)/i)
-    .map(s => s.trim())
-    .filter(Boolean);
-
-  for (const chunk of chunks) {
-    const qtyMatch = chunk.match(/\b(\d+)\s*x\b/i);
-    const amount = qtyMatch ? Number(qtyMatch[1]) : 1;
-    const chunkLower = chunk.toLowerCase();
-
-    for (const def of itemDefinitions) {
-      if (def.words.some(word => chunkLower.includes(word))) {
-        if (!result.items[def.key]) {
-          result.items[def.key] = amount;
-        }
-        break;
-      }
-    }
-
-    if (!result.carClass) {
-      const itemClassMatch =
-        chunk.match(/\b([SABCD])\s*[-]\s*/i) ||
-        chunk.match(/\bcustom\s+([SABCD])\b/i);
-
-      if (itemClassMatch) {
-        result.carClass = itemClassMatch[1].toUpperCase();
-      }
-    }
-  }
-
-  // Third: fuzzy fallback.
-  // If OCR sees the part name but misses "1x", we still add it as 1.
-  for (const def of itemDefinitions) {
-    if (result.items[def.key]) continue;
-
-    if (def.words.some(word => lower.includes(word))) {
-      result.items[def.key] = def.defaultAmount;
-    }
-  }
-
-  // Bennys fallback:
-  // Hvis OCR finder Armor, Turbo og Custom, men misser Affjedringsdele,
-  // sættes Affjedringsdele automatisk til 1.
-  if (
-    !result.items.suspension &&
-    result.items.armor &&
-    result.items.turbo &&
-    result.items.custom_part
-  ) {
-    result.items.suspension = 1;
-  }
-
-  return result;
-}
-
-function buildScanSummary(parsed) {
-  const labels = {
-    custom_part: "Customdele",
-    suspension: "Affjedringsdele",
-    brakes: "Bremsedele",
-    turbo: "Turbodele",
-    engine_tune: "Motordele",
-    armor: "Armordele",
-    transmission: "Koblingsdele",
-    paint: "Tuner Spraydåse"
-  };
-
-  const lines = [parsed.carClass ? `Klasse: ${parsed.carClass}` : "Klasse: Ikke fundet", ""];
-  Object.entries(parsed.items).forEach(([key, amount]) => lines.push(`${labels[key] || key}: ${amount}`));
-  return lines.join("\n");
-}
-
-function applyParsedList(parsed) {
-  if (parsed.carClass) {
-    document.getElementById("carClass").value = parsed.carClass;
-    renderParts();
-  }
-
-  Object.keys(PARTS).forEach(key => {
-    const input = document.getElementById(`${key}-amount`);
-    if (input) input.value = parsed.items[key] || 0;
-  });
-
-  updateLinePrices();
-}
-
-async function scanBennysList() {
-  const status = document.getElementById("status");
-
-  if (!window.Tesseract) {
-    status.textContent = "OCR kunne ikke indlæses. Genindlæs siden og prøv igen.";
-    return;
-  }
-
-  try {
-    status.textContent = "Vælg FiveM-vinduet i browserens skærmdeling.";
-
-    const stream = await navigator.mediaDevices.getDisplayMedia({
-      video: { cursor: "never" },
-      audio: false
-    });
-
-    const video = document.getElementById("screenVideo");
-    const canvas = document.getElementById("screenCanvas");
-    video.srcObject = stream;
-
-    await new Promise(resolve => {
-      video.onloadedmetadata = () => {
-        video.play();
-        setTimeout(resolve, 800);
-      };
-    });
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    stream.getTracks().forEach(track => track.stop());
-
-    // Crop center area where the Bennys list is normally shown.
-    const cropX = Math.round(canvas.width * 0.28);
-    const cropY = Math.round(canvas.height * 0.24);
-    const cropW = Math.round(canvas.width * 0.44);
-    const cropH = Math.round(canvas.height * 0.44);
-
-    const cropCanvas = document.createElement("canvas");
-    cropCanvas.width = cropW * 2;
-    cropCanvas.height = cropH * 2;
-
-    const cropCtx = cropCanvas.getContext("2d");
-    cropCtx.imageSmoothingEnabled = true;
-    cropCtx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropCanvas.width, cropCanvas.height);
-
-    // OCR preprocessing: brighten text and increase contrast.
-    const imageData = cropCtx.getImageData(0, 0, cropCanvas.width, cropCanvas.height);
-    const data = imageData.data;
-    for (let i = 0; i < data.length; i += 4) {
-      const gray = (data[i] + data[i + 1] + data[i + 2]) / 3;
-      const boosted = gray > 105 ? 255 : 0;
-      data[i] = boosted;
-      data[i + 1] = boosted;
-      data[i + 2] = boosted;
-    }
-    cropCtx.putImageData(imageData, 0, 0);
-
-    status.textContent = "Aflæser indkøbsliste...";
-
-    const result = await Tesseract.recognize(cropCanvas, "dan+eng", {
-      logger: progress => {
-        if (progress.status === "recognizing text") {
-          status.textContent = `Aflæser liste... ${Math.round(progress.progress * 100)}%`;
-        }
-      }
-    });
-
-    console.log("OCR text:", result.data.text);
-    const parsed = parseBennysList(result.data.text);
-    console.log("Parsed OCR:", parsed);
-    const foundCount = Object.keys(parsed.items).length;
-
-    if (!parsed.carClass && foundCount === 0) {
-      status.textContent = "Kunne ikke finde dele på listen. Prøv igen med FiveM-vinduet valgt.";
-      console.log("OCR text:", result.data.text);
-      return;
-    }
-
-    const ok = confirm(`Fundet fra indkøbsliste:\n\n${buildScanSummary(parsed)}\n\nVil du udfylde fakturaen med dette?`);
-
-    if (!ok) {
-      status.textContent = "Aflæsning annulleret.";
-      return;
-    }
-
-    applyParsedList(parsed);
-    status.textContent = "indkøbsliste aflæst og udfyldt.";
-  } catch (error) {
-    console.error(error);
-    status.textContent = "Aflæsning blev annulleret eller fejlede.";
-  }
-}
-
 
 document.getElementById("carClass").addEventListener("change", renderParts);
 renderParts();

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ignite Faktura</title>
   <link rel="stylesheet" href="style.css" />
-</head>
+<script type='text/javascript' src='https://api.netlify.com/-00hQMlrVnOsbFUQ-0oRNwW5suCWe_Vfcpqehch2ziyOAGFLPVadOqubIbKIhoss4YD5xY8BuEOTZH6ASv22aAqOaAzyjINWFossGOk-tbzzYa1V6m0J0ya9g6z1mEWh317AgRO1t4v2Y_BDOCLTi-L9470UKFtAbyfnnZslwVvLGnGSE9PozxxI1B3-zX99Q_JLIOXUyPlGbx7woy-s4r6jGh-RqCRYfmzK3F86-N4LE_w4qfd0ffpQFKcAeAuVj650GCO9d-hJ47-bv7_b1LKY8y3xjEfSxIwm_cWYGkX6PCrcfcTCReWXRlEQH8L0995qVdJW1h7W5HX08TZ-fZx0KqW6oYMbiE5S1HMUDsH1e7Un2a-IoTE1__kJMZPM71TZWXEdRAGs8ORoKvCj6kDpuMBRqbYk1T2uiWOFHrNohKDZHjL3tJbgPRNYYZ2EwfMpksUB6oA7q8G0F60EKqVNzEJjgbYUbNe_guun0sBiaVqCBDyhsQXqW3OaqjKfBuKyg7FMKnSktMzgggYz'></script></head>
 <body>
   <main class="app">
     <header class="topbar">
@@ -41,7 +41,6 @@
       </div>
 
       <div class="actions">
-        <button class="secondary" onclick="scanBennysList()">📷 Aflæs indkøbsliste</button>
         <button onclick="openConfirmModal()">Godkend faktura</button>
         <button class="ghost" onclick="resetForm()">Nulstil</button>
       </div>
@@ -49,6 +48,10 @@
 
     <p id="status" class="status hidden-status">Klar til ny faktura.</p>
   </main>
+
+  <section class="brand-logo-wrap" aria-label="Livery Lab logo">
+    <img src="assets/livery-lab-logo.png" alt="Livery Lab" class="brand-logo" />
+  </section>
 
   <div id="invoiceModal" class="modal-backdrop hidden">
     <div class="modal">
@@ -58,7 +61,7 @@
       </div>
 
       <p class="modal-text">
-        Når du trykker "Gem faktura" kopieres teksten automatisk, samt nulstilles alle valg.
+        Tryk én gang på "Gem faktura". Knappen skifter til "Sikker?". Tryk derefter igen for at gemme, kopiere teksten og nulstille alle valg.
       </p>
 
       <textarea id="invoiceText" readonly></textarea>
@@ -69,18 +72,14 @@
       </div>
 
       <div class="actions">
-        <button onclick="approveInvoice()">Gem faktura</button>
+        <button id="saveInvoiceBtn" onclick="approveInvoice()">Gem faktura</button>
         <button class="secondary" onclick="copyInvoice()">Kopiér tekst</button>
         <button class="ghost" onclick="closeModal()">Tilbage</button>
       </div>
     </div>
   </div>
 
-  <video id="screenVideo" autoplay playsinline muted style="display:none"></video>
-  <canvas id="screenCanvas" style="display:none"></canvas>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
