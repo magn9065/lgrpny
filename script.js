@@ -12,11 +12,11 @@ const PARTS = {
     "baseName": "Custom",
     "displaySuffix": "dele",
     "prices": {
-      "S": 8507,
-      "A": 3573,
-      "B": 1106,
-      "C": 289,
-      "D": 148
+      "S": 8800,
+      "A": 3640,
+      "B": 1160,
+      "C": 296,
+      "D": 152
     },
     "images": {
       "S": "assets/custom_part_S.png",
@@ -30,11 +30,11 @@ const PARTS = {
     "baseName": "Affjedrings",
     "displaySuffix": "dele",
     "prices": {
-      "S": 14888,
-      "A": 6254,
-      "B": 1936,
-      "C": 506,
-      "D": 257
+      "S": 15200,
+      "A": 6400,
+      "B": 2000,
+      "C": 520,
+      "D": 264
     },
     "images": {
       "S": "assets/suspension_s.png",
@@ -48,11 +48,11 @@ const PARTS = {
     "baseName": "Bremse",
     "displaySuffix": "dele",
     "prices": {
-      "S": 14888,
-      "A": 6254,
-      "B": 1936,
-      "C": 506,
-      "D": 257
+      "S": 15200,
+      "A": 6400,
+      "B": 2000,
+      "C": 520,
+      "D": 264
     },
     "images": {
       "S": "assets/brakes_s.png",
@@ -66,11 +66,11 @@ const PARTS = {
     "baseName": "Turbo",
     "displaySuffix": "dele",
     "prices": {
-      "S": 25523,
-      "A": 10719,
-      "B": 3318,
-      "C": 868,
-      "D": 441
+      "S": 26000,
+      "A": 11000,
+      "B": 3400,
+      "C": 920,
+      "D": 460
     },
     "images": {
       "S": "assets/turbo_s.png",
@@ -84,11 +84,11 @@ const PARTS = {
     "baseName": "Motor",
     "displaySuffix": "dele",
     "prices": {
-      "S": 26586,
-      "A": 11166,
-      "B": 3457,
-      "C": 905,
-      "D": 458
+      "S": 27200,
+      "A": 11400,
+      "B": 3520,
+      "C": 920,
+      "D": 480
     },
     "images": {
       "S": "assets/engine_tune_S.png",
@@ -102,11 +102,11 @@ const PARTS = {
     "baseName": "Armor",
     "displaySuffix": "dele",
     "prices": {
-      "S": 67393,
-      "A": 28287,
-      "B": 8756,
-      "C": 2289,
-      "D": 1163
+      "S": 68800,
+      "A": 28800,
+      "B": 9000,
+      "C": 2360,
+      "D": 1200
     },
     "images": {
       "S": "assets/armor_s.png",
@@ -120,11 +120,11 @@ const PARTS = {
     "baseName": "Koblings",
     "displaySuffix": "dele",
     "prices": {
-      "S": 19142,
-      "A": 8039,
-      "B": 2489,
-      "C": 652,
-      "D": 330
+      "S": 19600,
+      "A": 8200,
+      "B": 2560,
+      "C": 680,
+      "D": 340
     },
     "images": {
       "S": "assets/transmission_S.png",
@@ -134,15 +134,33 @@ const PARTS = {
       "D": "assets/transmission_D.png"
     }
   },
+  "stance_parts": {
+    "baseName": "Stance",
+    "displaySuffix": "dele",
+    "prices": {
+      "S": 8200,
+      "A": 3680,
+      "B": 1560,
+      "C": 500,
+      "D": 248
+    },
+    "images": {
+      "S": "assets/stance_parts_s.png",
+      "A": "assets/stance_parts_a.png",
+      "B": "assets/stance_parts_b.png",
+      "C": "assets/stance_parts_c.png",
+      "D": "assets/stance_parts_d.png"
+    }
+  },
   "paint": {
     "baseName": "Tuner Spraydåse",
     "displaySuffix": "",
     "prices": {
-      "S": 122,
-      "A": 122,
-      "B": 122,
-      "C": 122,
-      "D": 122
+      "S": 3200,
+      "A": 1600,
+      "B": 800,
+      "C": 280,
+      "D": 120
     },
     "images": {
       "S": "assets/tuner_spray_can.png",
@@ -248,7 +266,7 @@ function buildInvoiceText(items) {
   return items.map(item => `${item.amount}x ${item.name}`).join(", ");
 }
 
-function openConfirmModal() {
+async function openConfirmModal() {
   const items = getItems();
   const status = document.getElementById("status");
 
@@ -262,12 +280,73 @@ function openConfirmModal() {
 
   document.getElementById("invoiceText").value = invoiceText;
   document.getElementById("modalTotalPrice").textContent = money(total);
+
+  status.textContent = "Sender Discord-log...";
+  const discordSent = await sendDiscordInvoiceLog(
+    items,
+    total,
+    document.getElementById("carClass").value
+  );
+
   document.getElementById("invoiceModal").classList.remove("hidden");
-  status.textContent = "Faktura klar til godkendelse.";
+  status.textContent = discordSent
+    ? "Discord-log sendt. Faktura klar til godkendelse."
+    : "Faktura klar, men Discord-log fejlede.";
 }
 
 function closeModal() {
   document.getElementById("invoiceModal").classList.add("hidden");
+}
+
+function formatInvoiceDateTime() {
+  const now = new Date();
+  const date = now.toLocaleDateString("da-DK", {
+    timeZone: "Europe/Copenhagen",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+  const time = now.toLocaleTimeString("da-DK", {
+    timeZone: "Europe/Copenhagen",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+  return `${date} - ${time}`;
+}
+
+async function sendDiscordInvoiceLog(items, total, carClass) {
+  const status = document.getElementById("status");
+  const invoiceText = buildInvoiceText(items);
+  const dateTime = formatInvoiceDateTime();
+
+  try {
+    const discordResponse = await fetch("/.netlify/functions/send-discord", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        carClass,
+        total,
+        invoiceText,
+        items,
+        dateTime
+      })
+    });
+
+    if (!discordResponse.ok) {
+      const discordErrorText = await discordResponse.text();
+      console.error("Discord webhook fejl:", discordErrorText);
+      if (status) status.textContent = "Faktura klar, men Discord-log fejlede. Tjek Netlify Function Logs.";
+      return false;
+    }
+
+    return true;
+  } catch (discordError) {
+    console.error("Discord webhook fejl:", discordError);
+    if (status) status.textContent = "Faktura klar, men Discord-log fejlede. Tjek Netlify Function Logs.";
+    return false;
+  }
 }
 
 async function approveInvoice() {
