@@ -1,0 +1,13 @@
+IGNITE FAKTURA - NYE SLUTPRISER
+
+Priserne er justeret svagt op og afrundet. MARKUP er stadig 25%.
+
+Custom: S 11.000 | A 4.550 | B 1.450 | C 370 | D 190
+Affjedring: S 19.000 | A 8.000 | B 2.500 | C 650 | D 330
+Bremser: S 19.000 | A 8.000 | B 2.500 | C 650 | D 330
+Turbo: S 32.500 | A 13.750 | B 4.250 | C 1.150 | D 575
+Motor: S 34.000 | A 14.250 | B 4.400 | C 1.150 | D 600
+Armor: S 86.000 | A 36.000 | B 11.250 | C 2.950 | D 1.500
+Kobling: S 24.500 | A 10.250 | B 3.200 | C 850 | D 425
+Stance: S 10.250 | A 4.600 | B 1.950 | C 625 | D 310
+Spraydåse: S 4.100 | A 2.050 | B 1.050 | C 360 | D 160

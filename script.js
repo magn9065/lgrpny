@@ -12,11 +12,11 @@ const PARTS = {
     "baseName": "Custom",
     "displaySuffix": "dele",
     "prices": {
-      "S": 8507,
-      "A": 3573,
-      "B": 1106,
-      "C": 289,
-      "D": 148
+      "S": 8800,
+      "A": 3640,
+      "B": 1160,
+      "C": 296,
+      "D": 152
     },
     "images": {
       "S": "assets/custom_part_s.png",
@@ -30,11 +30,11 @@ const PARTS = {
     "baseName": "Affjedrings",
     "displaySuffix": "dele",
     "prices": {
-      "S": 14888,
-      "A": 6254,
-      "B": 1936,
-      "C": 506,
-      "D": 257
+      "S": 15200,
+      "A": 6400,
+      "B": 2000,
+      "C": 520,
+      "D": 264
     },
     "images": {
       "S": "assets/suspension_s.png",
@@ -48,11 +48,11 @@ const PARTS = {
     "baseName": "Bremse",
     "displaySuffix": "dele",
     "prices": {
-      "S": 14888,
-      "A": 6254,
-      "B": 1936,
-      "C": 506,
-      "D": 257
+      "S": 15200,
+      "A": 6400,
+      "B": 2000,
+      "C": 520,
+      "D": 264
     },
     "images": {
       "S": "assets/brakes_s.png",
@@ -66,11 +66,11 @@ const PARTS = {
     "baseName": "Turbo",
     "displaySuffix": "dele",
     "prices": {
-      "S": 25523,
-      "A": 10719,
-      "B": 3318,
-      "C": 868,
-      "D": 441
+      "S": 26000,
+      "A": 11000,
+      "B": 3400,
+      "C": 920,
+      "D": 460
     },
     "images": {
       "S": "assets/turbo_s.png",
@@ -84,11 +84,11 @@ const PARTS = {
     "baseName": "Motor",
     "displaySuffix": "dele",
     "prices": {
-      "S": 26586,
-      "A": 11166,
-      "B": 3457,
-      "C": 905,
-      "D": 458
+      "S": 27200,
+      "A": 11400,
+      "B": 3520,
+      "C": 920,
+      "D": 480
     },
     "images": {
       "S": "assets/engine_tune_s.png",
@@ -102,11 +102,11 @@ const PARTS = {
     "baseName": "Armor",
     "displaySuffix": "dele",
     "prices": {
-      "S": 67393,
-      "A": 28287,
-      "B": 8756,
-      "C": 2289,
-      "D": 1163
+      "S": 68800,
+      "A": 28800,
+      "B": 9000,
+      "C": 2360,
+      "D": 1200
     },
     "images": {
       "S": "assets/armor_s.png",
@@ -120,11 +120,11 @@ const PARTS = {
     "baseName": "Koblings",
     "displaySuffix": "dele",
     "prices": {
-      "S": 19142,
-      "A": 8039,
-      "B": 2489,
-      "C": 652,
-      "D": 330
+      "S": 19600,
+      "A": 8200,
+      "B": 2560,
+      "C": 680,
+      "D": 340
     },
     "images": {
       "S": "assets/transmission_s.png",
@@ -138,11 +138,11 @@ const PARTS = {
     "baseName": "Stance",
     "displaySuffix": "dele",
     "prices": {
-      "S": 8000,
-      "A": 3600,
-      "B": 1520,
-      "C": 480,
-      "D": 240
+      "S": 8200,
+      "A": 3680,
+      "B": 1560,
+      "C": 500,
+      "D": 248
     },
     "images": {
       "S": "assets/stance_parts_s.png",
@@ -156,11 +156,11 @@ const PARTS = {
     "baseName": "Tuner Spraydåse",
     "displaySuffix": "",
     "prices": {
-      "S": 3200,
-      "A": 1600,
-      "B": 800,
-      "C": 280,
-      "D": 120
+      "S": 3280,
+      "A": 1640,
+      "B": 840,
+      "C": 288,
+      "D": 128
     },
     "images": {
       "S": "assets/tuner_spray_can.png",
