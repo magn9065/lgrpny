@@ -156,11 +156,11 @@ const PARTS = {
     "baseName": "Tuner Spraydåse",
     "displaySuffix": "",
     "prices": {
-      "S": 4000,
-      "A": 2000,
-      "B": 1000,
-      "C": 350,
-      "D": 150
+      "S": 3200,
+      "A": 1600,
+      "B": 800,
+      "C": 280,
+      "D": 120
     },
     "images": {
       "S": "assets/tuner_spray_can.png",
