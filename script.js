@@ -134,6 +134,24 @@ const PARTS = {
       "D": "assets/transmission_D.png"
     }
   },
+  "stance_parts": {
+    "baseName": "Stance",
+    "displaySuffix": "dele",
+    "prices": {
+      "S": 8200,
+      "A": 3680,
+      "B": 1560,
+      "C": 500,
+      "D": 248
+    },
+    "images": {
+      "S": "assets/stance_parts_s.png",
+      "A": "assets/stance_parts_a.png",
+      "B": "assets/stance_parts_b.png",
+      "C": "assets/stance_parts_c.png",
+      "D": "assets/stance_parts_d.png"
+    }
+  },
   "paint": {
     "baseName": "Tuner Spraydåse",
     "displaySuffix": "",
