@@ -17,6 +17,16 @@
 html,
 body {
   min-height: 100%;
+  overflow-x: hidden;
+}
+
+/* Keep the page locked to the viewport on desktop so the logo does not create extra scroll. */
+@media (min-width: 721px) {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
 }
 
 body {
@@ -122,7 +132,7 @@ select {
 
 .parts {
   display: grid;
-  grid-template-columns: repeat(8, minmax(135px, 1fr));
+  grid-template-columns: repeat(9, minmax(118px, 1fr));
   gap: 10px;
 }
 
@@ -145,7 +155,7 @@ select {
 .part-title {
   width: 100%;
   text-align: center;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
   white-space: nowrap;
   overflow: hidden;
@@ -258,7 +268,7 @@ button.ghost {
 }
 
 .hidden-status {
-  color: var(--muted);
+  color: transparent;
   user-select: none;
 }
 
@@ -409,20 +419,49 @@ input[type="number"] {
   overflow: hidden;
 }
 
-.status { color: var(--muted) !important; }
 
-
-/* Clean final image rendering */
-.part-image {
-  width: 82px !important;
-  height: 62px !important;
-  object-fit: contain !important;
-  object-position: center !important;
-  display: block !important;
-  margin: 0 auto !important;
-  transform: none !important;
+button.confirming {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  color: white;
 }
 
-.part-card:hover .part-image {
-  transform: none !important;
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+
+/* Centered showcase logo under the invoice UI */
+.brand-logo-wrap {
+  width: min(1380px, calc(100% - 40px));
+  margin: 18px auto 0;
+  min-height: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  pointer-events: none;
+}
+
+.brand-logo {
+  width: clamp(230px, 24vw, 370px);
+  max-width: 90%;
+  height: auto;
+  opacity: 0.34;
+  transform: translateY(-26px);
+  filter: drop-shadow(0 26px 48px rgba(0,0,0,.55));
+  user-select: none;
+}
+
+@media (max-width: 720px) {
+  .brand-logo-wrap {
+    width: min(100% - 18px, 1500px);
+    margin-top: 18px;
+    min-height: 190px;
+  }
+
+  .brand-logo {
+    width: min(250px, 68vw);
+    opacity: 0.28;
+    transform: translateY(-18px);
+  }
 }
