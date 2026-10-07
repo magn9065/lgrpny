@@ -448,7 +448,6 @@ button:disabled {
   height: auto;
   opacity: 0.34;
   transform: translateY(-26px);
-  filter: drop-shadow(0 26px 48px rgba(0,0,0,.55));
   user-select: none;
 }
 
@@ -527,4 +526,11 @@ button:disabled {
   .discount-control {
     margin-left: 0;
   }
+}
+
+/* Discount visual cleanup */
+.discount-control {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
 }
