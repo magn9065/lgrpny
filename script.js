@@ -6,6 +6,36 @@ const supabaseClient =
     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     : null;
 
+let currentMechanic = "";
+
+function setMechanicName() {
+  const input = document.getElementById("mechanicName");
+  const error = document.getElementById("mechanicNameError");
+  const name = String(input?.value || "").trim();
+
+  if (!name) {
+    if (error) error.textContent = "Skriv dit navn eller dine initialer for at fortsætte.";
+    input?.focus();
+    return;
+  }
+
+  currentMechanic = name;
+  if (error) error.textContent = "";
+  document.getElementById("mechanicModal")?.classList.add("hidden");
+}
+
+function setupMechanicPrompt() {
+  const input = document.getElementById("mechanicName");
+  const button = document.getElementById("mechanicContinueBtn");
+
+  button?.addEventListener("click", setMechanicName);
+  input?.addEventListener("keydown", event => {
+    if (event.key === "Enter") setMechanicName();
+  });
+
+  setTimeout(() => input?.focus(), 0);
+}
+
 const MARKUP = 1.25;
 const PARTS = {
   "custom_part": {
@@ -298,6 +328,12 @@ async function openConfirmModal() {
   const items = getItems();
   const status = document.getElementById("status");
 
+  if (!currentMechanic) {
+    document.getElementById("mechanicModal")?.classList.remove("hidden");
+    document.getElementById("mechanicName")?.focus();
+    return;
+  }
+
   if (items.length === 0) {
     status.textContent = "Vælg mindst én del først.";
     return;
@@ -316,7 +352,8 @@ async function openConfirmModal() {
     document.getElementById("carClass").value,
     discountPercent,
     subtotal,
-    discountAmount
+    discountAmount,
+    currentMechanic
   );
 
   document.getElementById("invoiceModal").classList.remove("hidden");
@@ -345,7 +382,7 @@ function formatInvoiceDateTime() {
   return `${date} - ${time}`;
 }
 
-async function sendDiscordInvoiceLog(items, total, carClass, discountPercent, subtotal, discountAmount) {
+async function sendDiscordInvoiceLog(items, total, carClass, discountPercent, subtotal, discountAmount, mechanic) {
   const status = document.getElementById("status");
   const invoiceText = buildInvoiceText(items);
   const dateTime = formatInvoiceDateTime();
@@ -364,7 +401,8 @@ async function sendDiscordInvoiceLog(items, total, carClass, discountPercent, su
         dateTime,
         discountPercent,
         subtotal,
-        discountAmount
+        discountAmount,
+        mechanic
       })
     });
 
@@ -415,7 +453,7 @@ async function saveInvoiceAndReset() {
     const { data: order, error: orderError } = await supabaseClient
       .from("tuner_orders")
       .insert({
-        mechanic: "",
+        mechanic: currentMechanic,
         plate: "",
         car_class: carClass,
         invoice_text: invoiceText,
@@ -797,4 +835,5 @@ async function scanBennysList() {
 
 
 document.getElementById("carClass").addEventListener("change", renderParts);
+setupMechanicPrompt();
 renderParts();

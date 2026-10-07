@@ -61,6 +61,24 @@
     <img src="assets/livery-lab-logo.png" alt="Livery Lab" class="brand-logo" />
   </section>
 
+
+  <div id="mechanicModal" class="modal-backdrop">
+    <div class="modal mechanic-modal">
+      <div class="modal-header">
+        <h2>Hvem laver fakturaen?</h2>
+      </div>
+      <p class="modal-text">
+        Skriv dit navn eller dine initialer. Det bliver vist i Discord-loggen.
+      </p>
+      <input id="mechanicName" class="mechanic-name-input" type="text" maxlength="40"
+             placeholder="Navn / initialer" autocomplete="name" />
+      <p id="mechanicNameError" class="mechanic-name-error"></p>
+      <div class="actions">
+        <button id="mechanicContinueBtn" type="button">Fortsæt</button>
+      </div>
+    </div>
+  </div>
+
   <div id="invoiceModal" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-header">

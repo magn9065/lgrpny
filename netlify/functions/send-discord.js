@@ -79,6 +79,7 @@ function buildCleanEmojiEmbed(data) {
     : [];
 
   const carClass = safeText(data.carClass, "?");
+  const mechanic = safeText(data.mechanic, "Ukendt");
   const total = Number(data.total || 0);
   const subtotal = Number(data.subtotal ?? total);
   const discountPercent = Math.min(100, Math.max(0, Number(data.discountPercent || 0)));
@@ -104,6 +105,7 @@ function buildCleanEmojiEmbed(data) {
         title: "🧾 Ny Faktura",
         color: 10053375,
         description: [
+          `👤 **Faktura lavet af:** ${mechanic}`,
           `🔧 **Klasse:** ${carClass}`,
           `🏷️ **Rabat:** ${discountPercent}%`,
           ...(discountPercent > 0 ? [`💵 **Før rabat:** ${formatMoney(subtotal)}`, `💸 **Sparet:** ${formatMoney(discountAmount)}`] : []),
