@@ -276,18 +276,9 @@ function getItems() {
     .filter(item => item.amount > 0);
 }
 
-function getDiscountPercent() {
-  const input = document.getElementById("discountPercent");
-  const value = Number(input?.value || 0);
-  return Math.min(100, Math.max(0, Number.isFinite(value) ? value : 0));
-}
-
 function getInvoiceTotals(items) {
-  const subtotal = items.reduce((sum, item) => sum + item.total_price, 0);
-  const discountPercent = getDiscountPercent();
-  const discountAmount = Math.round(subtotal * discountPercent / 100);
-  const total = Math.max(0, subtotal - discountAmount);
-  return { subtotal, discountPercent, discountAmount, total };
+  const total = items.reduce((sum, item) => sum + item.total_price, 0);
+  return { total };
 }
 
 function updateLinePrices() {
@@ -301,23 +292,10 @@ function updateLinePrices() {
     if (el) el.textContent = money(line);
   });
 
-  const { subtotal, discountPercent, discountAmount, total } = getInvoiceTotals(items);
+  const { total } = getInvoiceTotals(items);
   document.getElementById("totalPrice").textContent = money(total);
   document.getElementById("modalTotalPrice").textContent = money(total);
 
-  const summary = document.getElementById("discountSummary");
-  if (summary) {
-    summary.textContent = discountPercent > 0
-      ? `${discountPercent}% rabat · før ${money(subtotal)} · spar ${money(discountAmount)}`
-      : "Ingen rabat";
-  }
-
-  const modalDiscountText = document.getElementById("modalDiscountText");
-  if (modalDiscountText) {
-    modalDiscountText.textContent = discountPercent > 0
-      ? `${discountPercent}% rabat · før ${money(subtotal)} · spar ${money(discountAmount)}`
-      : "Ingen rabat";
-  }
 }
 
 function buildInvoiceText(items) {
@@ -340,7 +318,7 @@ async function openConfirmModal() {
   }
 
   const invoiceText = buildInvoiceText(items);
-  const { subtotal, discountPercent, discountAmount, total } = getInvoiceTotals(items);
+  const { total } = getInvoiceTotals(items);
 
   document.getElementById("invoiceText").value = invoiceText;
   document.getElementById("modalTotalPrice").textContent = money(total);
@@ -350,9 +328,6 @@ async function openConfirmModal() {
     items,
     total,
     document.getElementById("carClass").value,
-    discountPercent,
-    subtotal,
-    discountAmount,
     currentMechanic
   );
 
@@ -382,7 +357,7 @@ function formatInvoiceDateTime() {
   return `${date} - ${time}`;
 }
 
-async function sendDiscordInvoiceLog(items, total, carClass, discountPercent, subtotal, discountAmount, mechanic) {
+async function sendDiscordInvoiceLog(items, total, carClass, mechanic) {
   const status = document.getElementById("status");
   const invoiceText = buildInvoiceText(items);
   const dateTime = formatInvoiceDateTime();
@@ -399,9 +374,6 @@ async function sendDiscordInvoiceLog(items, total, carClass, discountPercent, su
         invoiceText,
         items,
         dateTime,
-        discountPercent,
-        subtotal,
-        discountAmount,
         mechanic
       })
     });
@@ -518,8 +490,6 @@ function resetForm(message = "Klar til ny faktura.") {
     if (input) input.value = 0;
   });
 
-  const discountInput = document.getElementById("discountPercent");
-  if (discountInput) discountInput.value = 0;
 
   document.getElementById("invoiceText").value = "";
   document.getElementById("status").textContent = message;
